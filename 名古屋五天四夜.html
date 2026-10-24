@@ -1,0 +1,608 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>名古屋五天四夜</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+/* Layout: 單欄手機優先繪本風，頂端固定選單 → 首頁 → 航班 → 每日行程（日期切換＋時間軸）→ 準備 */
+:root{
+  --paper:#FFFCF6; --ink:#3E3A39; --ink-soft:#7A7370; --line:#E9E2D6;
+  --coral:#F2A497; --yellow:#F6D27A; --mizu:#A8D3E6; --take:#B9DAA5;
+  --coral-l:#FCE6E1; --yellow-l:#FBF0D2; --mizu-l:#E3F1F7; --take-l:#E8F2E1;
+  --white:#FFFFFF;
+  --font:"Huninn","Zen Maru Gothic","PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r:22px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+a{color:inherit}
+button{font-family:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--coral);outline-offset:2px;border-radius:10px}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:3px solid var(--ink)}
+.nav .wrap{display:flex;align-items:center;gap:8px;padding-block:10px}
+.nav .logo{width:38px;height:38px;flex:none}
+.nav ul{display:flex;gap:4px;list-style:none;margin:0 0 0 auto;padding:0}
+.nav a{display:block;text-decoration:none;padding:6px 11px;border-radius:999px;border:2.5px solid transparent;font-size:15px}
+.nav a.on{background:var(--coral);border-color:var(--ink)}
+
+section{padding-block:28px}
+h2{font-size:22px;margin:0 0 14px;display:flex;align-items:center;gap:10px;text-wrap:balance}
+h2 .dot{width:14px;height:14px;border-radius:50%;border:3px solid var(--ink);flex:none}
+.card{background:var(--white);border:3px solid var(--ink);border-radius:var(--r);padding:16px}
+.muted{color:var(--ink-soft);font-size:14px}
+.num{font-variant-numeric:tabular-nums}
+
+/* hero */
+.hero{padding-top:20px;text-align:left}
+.hero-art{display:block;width:100%;max-width:100%;height:auto;border:3px solid var(--ink);border-radius:var(--r);background:var(--mizu-l)}
+.hero h1{font-size:30px;margin:18px 0 2px;line-height:1.25;text-wrap:balance}
+.hero .sub{margin:0;color:var(--ink-soft)}
+.count{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.count .box{flex:1 1 0;min-width:70px;background:var(--yellow-l);border:3px solid var(--ink);border-radius:18px;padding:10px 6px;text-align:center}
+.count .box b{display:block;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.count .box span{font-size:13px;color:var(--ink-soft)}
+.count-msg{margin:10px 0 0;font-size:14px;color:var(--ink-soft)}
+.overview{margin-top:18px;display:grid;gap:8px}
+.ov{display:grid;grid-template-columns:62px 1fr;gap:10px;align-items:start;padding:10px 12px;border:2.5px solid var(--ink);border-radius:16px;background:var(--white);text-decoration:none;cursor:pointer;text-align:left;width:100%;font-size:15px}
+.ov .d{font-variant-numeric:tabular-nums;font-size:14px}
+.ov .d small{display:block;color:var(--ink-soft);font-size:12px}
+.ov .t{min-width:0}
+.ov .n{display:block;color:var(--ink-soft);font-size:13px}
+
+/* flights */
+.flights{display:grid;gap:12px}
+.flight{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+.flight .ico{width:56px;height:56px;border-radius:16px;border:3px solid var(--ink);display:grid;place-items:center}
+.flight .lab{font-size:13px;color:var(--ink-soft)}
+.flight .big{font-size:22px;line-height:1.3}
+.stay{margin-top:12px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--take-l)}
+
+/* day switcher */
+.days{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-bottom:18px}
+.days::before{content:"";position:absolute;left:10%;right:10%;top:15px;border-top:3px solid var(--ink);z-index:0}
+.day-btn{position:relative;z-index:1;background:none;border:0;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.day-btn .pin{width:22px;height:22px;margin-top:4px;border-radius:50%;background:var(--paper);border:3px solid var(--ink);transition:transform .25s}
+.day-btn .dt{font-size:16px;padding:1px 8px;border-radius:999px;font-variant-numeric:tabular-nums}
+.day-btn .wk{font-size:12px;color:var(--ink-soft)}
+.day-btn[aria-selected="true"] .pin{background:var(--coral);transform:scale(1.25)}
+.day-btn[aria-selected="true"] .dt{background:var(--coral)}
+
+.day-head{display:grid;grid-template-columns:84px 1fr;gap:14px;align-items:center}
+.day-head .art{width:84px;height:84px;border-radius:18px;border:3px solid var(--ink);overflow:hidden}
+.day-head .art svg{width:100%;height:100%;display:block}
+.day-head .no{font-size:13px;color:var(--ink-soft)}
+.day-head h3{margin:0;font-size:20px;line-height:1.35;text-wrap:balance}
+.day-head .st{font-size:13px;color:var(--ink-soft);margin-top:2px}
+
+.tl{list-style:none;margin:18px 0 0;padding:0;position:relative}
+.tl::before{content:"";position:absolute;left:62px;top:8px;bottom:8px;border-left:3px dotted var(--ink)}
+.tl li{display:grid;grid-template-columns:52px 22px 1fr;gap:6px;align-items:start;padding-bottom:16px}
+.tl .tm{font-size:13px;text-align:right;padding-top:2px;font-variant-numeric:tabular-nums;line-height:1.35;word-break:keep-all}
+.tl .nd{width:18px;height:18px;margin-top:3px;margin-left:2px;border-radius:50%;background:var(--paper);border:3px solid var(--ink);position:relative;z-index:1}
+.tl li.must .nd{background:var(--coral)}
+.tl .body{min-width:0}
+.tl .what{font-size:16px;line-height:1.45}
+.tl .what a{text-decoration-color:var(--mizu);text-decoration-thickness:3px;text-underline-offset:4px}
+.tl .note{font-size:13px;color:var(--ink-soft);margin-top:3px}
+.tags{display:inline-flex;gap:4px;flex-wrap:wrap;vertical-align:1px;margin-right:4px}
+.tag{display:inline-block;font-size:12px;line-height:1;padding:4px 8px;border-radius:999px;border:2px solid var(--ink);white-space:nowrap}
+.t-air{background:var(--mizu)} .t-rail{background:var(--take)} .t-taxi{background:var(--yellow)} .t-bus{background:var(--coral-l)} .t-walk{background:var(--white)}
+.t-must{background:var(--coral);font-weight:700}
+.t-tbd{background:var(--white);border-style:dashed}
+
+.tip{margin-top:6px;border-radius:18px;border:2.5px solid var(--ink);padding:12px 14px;font-size:14px;line-height:1.6}
+.tip b{display:block;font-size:15px;margin-bottom:2px}
+.tip.y{background:var(--yellow-l)} .tip.m{background:var(--mizu-l)} .tip.c{background:var(--coral-l)}
+.tips{display:grid;gap:10px;margin-top:4px}
+
+.bounce{animation:bounce .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bounce{0%{transform:translateY(12px) scale(.97);opacity:.4}100%{transform:none;opacity:1}}
+.float{animation:float 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.float2{animation:float 5s ease-in-out infinite reverse;transform-box:fill-box;transform-origin:center}
+.sway{animation:sway 3.5s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 0%}
+.steam{animation:steam 3s ease-in-out infinite;transform-box:fill-box;transform-origin:bottom}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+@keyframes steam{0%,100%{transform:translateY(0);opacity:.9}50%{transform:translateY(-3px);opacity:.5}}
+
+/* prep */
+.todo{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.todo label{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:12px 14px;border:2.5px solid var(--ink);border-radius:16px;background:var(--white);cursor:pointer;font-size:15px;line-height:1.5}
+.todo input{appearance:none;-webkit-appearance:none;width:26px;height:26px;margin:0;border:3px solid var(--ink);border-radius:9px;background:var(--paper);display:grid;place-items:center;cursor:pointer}
+.todo input:checked{background:var(--take)}
+.todo input:checked::after{content:"";width:10px;height:6px;border-left:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:translateY(-2px) rotate(-45deg)}
+.todo input:checked + span{text-decoration:line-through;text-decoration-thickness:2px;color:var(--ink-soft)}
+.progress{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:14px}
+.bar{flex:1;height:14px;border:2.5px solid var(--ink);border-radius:999px;background:var(--white);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--take);transition:width .3s}
+
+.places{display:grid;gap:8px}
+.place{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:10px 14px;border:2.5px solid var(--ink);border-radius:16px;background:var(--white)}
+.place .nm{min-width:0;font-size:15px}
+.place .nm a{text-decoration-color:var(--mizu);text-decoration-thickness:3px;text-underline-offset:4px}
+.place .why{display:block;font-size:13px;color:var(--ink-soft)}
+.chip{font-size:12px;padding:3px 9px;border-radius:999px;border:2px solid var(--ink);white-space:nowrap}
+.chip.go{background:var(--take)} .chip.maybe{background:var(--yellow)} .chip.no{background:var(--line)}
+h3.sub{font-size:17px;margin:26px 0 10px}
+footer{padding-block:20px 40px;text-align:center;font-size:13px;color:var(--ink-soft)}
+
+
+/* guide */
+.guide{margin-top:22px}
+.guide-head{font-size:18px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.guide-intro{font-size:15px;margin:0 0 12px;color:var(--ink)}
+.gd{border:2.5px solid var(--ink);border-radius:18px;background:var(--white);margin-bottom:10px;overflow:hidden}
+.gd summary{list-style:none;cursor:pointer;padding:12px 44px 12px 14px;position:relative}
+.gd summary::-webkit-details-marker{display:none}
+.gd summary::after{content:"";position:absolute;right:16px;top:50%;width:9px;height:9px;border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:translateY(-70%) rotate(45deg);transition:transform .2s}
+.gd[open] summary::after{transform:translateY(-30%) rotate(-135deg)}
+.gd[open] summary{background:var(--mizu-l);border-bottom:2.5px solid var(--ink)}
+.gd .gt-title{display:block;font-size:16px}
+.gd .gt-sub{display:block;font-size:13px;color:var(--ink-soft)}
+.gd .gb{padding:4px 14px 14px;font-size:15px;line-height:1.75}
+.gd .gb p{margin:10px 0}
+.gd .gb h5{font-size:15px;margin:16px 0 4px;padding-left:10px;border-left:4px solid var(--coral)}
+.gd .gb ul{margin:6px 0;padding-left:20px}
+.gd .gb li{margin:3px 0}
+.gd .gb b{background:linear-gradient(transparent 60%,var(--yellow-l) 60%)}
+.tbl{overflow-x:auto;margin:8px 0}
+table.gt{border-collapse:collapse;width:100%;font-size:14px;line-height:1.5}
+table.gt th,table.gt td{border:2px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+table.gt th{background:var(--paper);font-weight:normal;color:var(--ink-soft);font-size:13px}
+table.gt small{color:var(--ink-soft);font-size:12px}
+dl.gl{margin:6px 0;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+dl.gl dt{font-weight:700}dl.gl dd{margin:0}
+.note-box{margin:12px 0 4px;padding:10px 12px;border-radius:14px;border:2px dashed var(--ink);background:var(--yellow-l);font-size:14px}
+.src{margin-top:12px;font-size:12px;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:4px 10px}
+.src a{color:var(--ink-soft)}
+.sum{margin-top:6px;display:grid;gap:8px}
+.sum div{display:grid;grid-template-columns:72px 1fr;gap:10px;padding:10px 12px;border:2.5px solid var(--ink);border-radius:16px;background:var(--take-l);font-size:14px}
+/* souvenirs */
+.souv{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.souv li{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start;padding:12px 14px;border:2.5px solid var(--ink);border-radius:18px;background:var(--white)}
+.souv .ic{width:44px;height:44px;border-radius:14px;border:2.5px solid var(--ink);display:grid;place-items:center;font-size:15px;font-variant-numeric:tabular-nums}
+.souv .pl{font-size:16px}
+.souv .pl a{text-decoration-color:var(--mizu);text-decoration-thickness:3px;text-underline-offset:4px}
+.souv .wh{font-size:14px;color:var(--ink-soft);margin-top:2px}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .bounce,.float,.float2,.sway,.steam{animation:none!important}
+  .day-btn .pin,.bar i{transition:none}
+}
+@media (max-width:400px){.nav a{padding:5px 7px;font-size:14px}.nav ul{gap:2px}}@media (max-width:380px){.hero h1{font-size:26px}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="shachi" viewBox="0 0 20 20"><path d="M3 17 C3 10 8 5 13 4 C12 7 15 9 17 8 C16 12 12 13 10 12 C9 14 10 16 12 17 Z" fill="#F6D27A" stroke="#3E3A39" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="leaf" viewBox="0 0 20 20"><path d="M10 2 L12 7 L17 5 L14 10 L18 13 L12 13 L10 18 L8 13 L2 13 L6 10 L3 5 L8 7 Z" fill="#F2A497" stroke="#3E3A39" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<nav class="nav" aria-label="主選單">
+  <div class="wrap">
+    <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><rect x="3" y="12" width="34" height="24" rx="5" fill="#F2A497" stroke="#3E3A39" stroke-width="3"/><path d="M8 12 L20 4 L32 12" fill="#FFFCF6" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/><rect x="16" y="22" width="8" height="14" fill="#FFFCF6" stroke="#3E3A39" stroke-width="2.5"/></svg>
+    <ul>
+      <li><a href="#home" data-sec="home">首頁</a></li>
+      <li><a href="#flight" data-sec="flight">航班</a></li>
+      <li><a href="#plan" data-sec="plan">行程</a></li>
+      <li><a href="#gift" data-sec="gift">伴手禮</a></li>
+      <li><a href="#prep" data-sec="prep">準備</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+<section id="home" class="hero wrap">
+  <svg class="hero-art" viewBox="0 0 360 210" role="img" aria-label="名古屋城與紅葉的插圖">
+    <rect width="360" height="210" fill="#E3F1F7"/>
+    <circle class="float2" cx="300" cy="46" r="20" fill="#F6D27A" stroke="#3E3A39" stroke-width="3"/>
+    <g class="float"><path d="M40 52 q10 -14 24 -6 q12 -8 20 4 q10 2 6 10 h-48 q-10 -2 -2 -8z" fill="#FFFFFF" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/></g>
+    <path d="M0 170 Q60 140 120 160 T240 150 T360 160 V210 H0 Z" fill="#B9DAA5" stroke="#3E3A39" stroke-width="3"/>
+    <!-- castle -->
+    <g>
+      <rect x="120" y="150" width="120" height="22" fill="#FFFFFF" stroke="#3E3A39" stroke-width="3"/>
+      <path d="M128 150 h104 l-10 -10 h-84 z" fill="#B9DAA5" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="140" y="118" width="80" height="22" fill="#FFFFFF" stroke="#3E3A39" stroke-width="3"/>
+      <path d="M146 118 h68 l-10 -10 h-48 z" fill="#B9DAA5" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="156" y="88" width="48" height="20" fill="#FFFFFF" stroke="#3E3A39" stroke-width="3"/>
+      <path d="M150 88 h60 l-12 -14 h-36 z" fill="#B9DAA5" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="170" y="126" width="8" height="8" fill="#3E3A39"/><rect x="184" y="126" width="8" height="8" fill="#3E3A39"/>
+      <rect x="174" y="94" width="12" height="8" fill="#3E3A39"/>
+      <rect x="170" y="156" width="20" height="16" rx="3" fill="#3E3A39"/>
+      <use href="#shachi" class="float" x="160" y="58" width="16" height="16"/>
+      <use href="#shachi" class="float2" x="188" y="58" width="16" height="16" transform="translate(392 0) scale(-1 1)"/>
+    </g>
+    <!-- maple trees -->
+    <g><rect x="52" y="140" width="6" height="26" fill="#3E3A39"/><circle cx="55" cy="130" r="22" fill="#F2A497" stroke="#3E3A39" stroke-width="3"/></g>
+    <g><rect x="296" y="140" width="6" height="22" fill="#3E3A39"/><circle cx="299" cy="132" r="18" fill="#F6D27A" stroke="#3E3A39" stroke-width="3"/></g>
+    <use href="#leaf" class="sway" x="90" y="88" width="20" height="20"/>
+    <use href="#leaf" class="sway" x="252" y="96" width="16" height="16"/>
+    <use href="#leaf" class="float" x="26" y="92" width="14" height="14"/>
+  </svg>
+  <h1>名古屋五天四夜</h1>
+  <p class="sub num">2026.11.19（四）– 11.23（一）・兩人同行・連住名古屋萬豪</p>
+  <div class="count" id="count" aria-live="polite">
+    <div class="box"><b id="cd-d">--</b><span>天</span></div>
+    <div class="box"><b id="cd-h">--</b><span>小時</span></div>
+    <div class="box"><b id="cd-m">--</b><span>分鐘</span></div>
+  </div>
+  <p class="count-msg" id="count-msg">距離 11/19 15:35 抵達名古屋</p>
+
+  <div class="overview" id="overview"></div>
+</section>
+
+<section id="flight" class="wrap">
+  <h2><span class="dot" style="background:var(--mizu)"></span>航班與住宿</h2>
+  <div class="flights">
+    <div class="card flight">
+      <div class="ico" style="background:var(--mizu)"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="M3 18 L27 9 Q29 9 28 11 L10 23 L6 22 L9 18 Z" fill="#FFFFFF" stroke="#3E3A39" stroke-width="2.5" stroke-linejoin="round"/><path d="M14 15 L10 6 L13 5 L19 12" fill="#FFFFFF" stroke="#3E3A39" stroke-width="2.5" stroke-linejoin="round"/></svg></div>
+      <div><div class="lab">去程・11/19（四）</div><div class="big num">12:00 → 15:35</div><div class="muted">桃園 T1（TPE）→ 中部國際機場 T1（NGO）</div></div>
+    </div>
+    <div class="card flight">
+      <div class="ico" style="background:var(--coral)"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><g transform="translate(30 0) scale(-1 1)"><path d="M3 18 L27 9 Q29 9 28 11 L10 23 L6 22 L9 18 Z" fill="#FFFFFF" stroke="#3E3A39" stroke-width="2.5" stroke-linejoin="round"/><path d="M14 15 L10 6 L13 5 L19 12" fill="#FFFFFF" stroke="#3E3A39" stroke-width="2.5" stroke-linejoin="round"/></g></svg></div>
+      <div><div class="lab">回程・11/23（一，日本國定假日）</div><div class="big num">16:40 → 19:10</div><div class="muted">中部國際機場 T1（NGO）→ 桃園 T1（TPE）</div></div>
+    </div>
+  </div>
+  <div class="card stay">
+    <div class="ico" style="width:56px;height:56px;border-radius:16px;border:3px solid var(--ink);display:grid;place-items:center;background:var(--take)"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="6" y="4" width="18" height="23" rx="2" fill="#FFFFFF" stroke="#3E3A39" stroke-width="2.5"/><path d="M10 9h3M17 9h3M10 14h3M17 14h3" stroke="#3E3A39" stroke-width="2.5" stroke-linecap="round"/><rect x="12" y="19" width="6" height="8" fill="#F6D27A" stroke="#3E3A39" stroke-width="2"/></svg></div>
+    <div><div class="lab muted">住宿・連住四晚</div><div style="font-size:18px"><a href="https://www.google.com/maps/search/?api=1&query=Nagoya%20Marriott%20Associa%20Hotel" target="_blank" rel="noopener">名古屋萬豪酒店</a></div><div class="muted">Nagoya Marriott Associa Hotel・JR 名古屋站上方</div></div>
+  </div>
+</section>
+
+<section id="plan" class="wrap">
+  <h2><span class="dot" style="background:var(--coral)"></span>每日行程</h2>
+  <div class="days" role="tablist" aria-label="選擇日期" id="days"></div>
+  <div id="day" role="tabpanel"></div>
+</section>
+
+<section id="gift" class="wrap">
+  <h2><span class="dot" style="background:var(--yellow)"></span>伴手禮清單</h2>
+  <p class="muted" style="margin:-6px 0 12px">照順路的地點一次買齊</p>
+  <ul class="souv" id="souv"></ul>
+</section>
+
+<section id="prep" class="wrap">
+  <h2><span class="dot" style="background:var(--take)"></span>出發前準備</h2>
+  <div class="progress"><span class="num" id="prog-txt">0/6 完成</span><div class="bar"><i id="prog-bar"></i></div></div>
+  <ul class="todo" id="todo"></ul>
+
+  <h3 class="sub">熱田神宮怎麼排？</h3>
+  <div class="tips">
+    <div class="tip y"><b>方案一（較推薦）：11/19 聚餐前參拜</b>要看聚餐時間。入境、交通、入住後空檔可能很短，若晚餐 19:00 前開始，這個方案不理想。</div>
+    <div class="tip m"><b>方案二：11/22 下呂回來後參拜</b>境內全天開放，可排傍晚或晚上，但會壓縮購物時間，天黑後的參觀感受也和白天不同。</div>
+  </div>
+  <p class="muted" style="margin-top:10px">先確認 11/19 聚餐幾點開始，就能決定。<a href="https://www.google.com/maps/search/?api=1&query=Atsuta%20Jingu" target="_blank" rel="noopener">熱田神宮地圖</a></p>
+
+  <h3 class="sub">收藏地點的取捨</h3>
+  <div class="places" id="places"></div>
+</section>
+</main>
+<footer class="wrap">列車時刻、團體集合時間請以最新班表與 Klook 訂單為準</footer>
+
+<script>
+(function(){
+  var M=function(q){return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q)};
+  var TAG={air:["飛機","t-air"],rail:["名鐵","t-rail"],jr:["JR 特急","t-rail"],taxi:["計程車","t-taxi"],bus:["Klook 巴士","t-bus"],walk:["步行","t-walk"],must:["必去","t-must"],tbd:["待確認","t-tbd"]};
+
+  var ART={
+    plane:'<svg viewBox="0 0 84 84"><rect width="84" height="84" fill="#E3F1F7"/><g class="float"><path d="M20 30 q6 -8 14 -3 q7 -5 12 2 q6 1 3 6 h-28 q-6 -1 -1 -5z" fill="#fff" stroke="#3E3A39" stroke-width="2.5"/></g><g class="float2"><path d="M12 56 L70 36 Q75 36 73 40 L30 64 L22 62 L26 56 Z" fill="#fff" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/><path d="M38 50 L30 32 L36 30 L50 44" fill="#F2A497" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/></g><path d="M0 74 H84" stroke="#3E3A39" stroke-width="3"/></svg>',
+    maple:'<svg viewBox="0 0 84 84"><rect width="84" height="84" fill="#FBF0D2"/><path d="M0 62 Q20 44 42 56 T84 50 V84 H0Z" fill="#B9DAA5" stroke="#3E3A39" stroke-width="3"/><path d="M20 66 v-12 M60 62 v-12" stroke="#3E3A39" stroke-width="3"/><circle cx="20" cy="46" r="12" fill="#F2A497" stroke="#3E3A39" stroke-width="3"/><circle cx="60" cy="42" r="12" fill="#F6D27A" stroke="#3E3A39" stroke-width="3"/><use href="#leaf" class="sway" x="38" y="14" width="18" height="18"/><circle cx="68" cy="16" r="3" fill="#F6D27A" stroke="#3E3A39" stroke-width="2"/><circle cx="14" cy="18" r="2.5" fill="#F6D27A" stroke="#3E3A39" stroke-width="2"/></svg>',
+    juku:'<svg viewBox="0 0 84 84"><rect width="84" height="84" fill="#E8F2E1"/><path d="M14 40 L42 22 L70 40" fill="#A8D3E6" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/><rect x="18" y="40" width="48" height="30" fill="#fff" stroke="#3E3A39" stroke-width="3"/><path d="M18 50 H66" stroke="#3E3A39" stroke-width="2.5"/><rect x="36" y="54" width="12" height="16" fill="#3E3A39"/><g class="sway"><path d="M24 50 v6" stroke="#3E3A39" stroke-width="2"/><rect x="20" y="56" width="8" height="10" rx="3" fill="#F2A497" stroke="#3E3A39" stroke-width="2"/></g><path d="M0 72 H84" stroke="#3E3A39" stroke-width="3"/></svg>',
+    onsen:'<svg viewBox="0 0 84 84"><rect width="84" height="84" fill="#FCE6E1"/><path d="M14 50 Q14 70 42 70 Q70 70 70 50 Z" fill="#A8D3E6" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/><path d="M10 50 H74" stroke="#3E3A39" stroke-width="3" stroke-linecap="round"/><g class="steam" fill="none" stroke="#3E3A39" stroke-width="3" stroke-linecap="round"><path d="M28 42 q-6 -7 0 -14 q6 -7 0 -14"/><path d="M42 42 q-6 -7 0 -14 q6 -7 0 -14"/><path d="M56 42 q-6 -7 0 -14 q6 -7 0 -14"/></g></svg>',
+    castle:'<svg viewBox="0 0 84 84"><rect width="84" height="84" fill="#E3F1F7"/><rect x="20" y="58" width="44" height="14" fill="#fff" stroke="#3E3A39" stroke-width="3"/><path d="M14 58 H70 L62 50 H22 Z" fill="#B9DAA5" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/><rect x="28" y="38" width="28" height="12" fill="#fff" stroke="#3E3A39" stroke-width="3"/><path d="M22 38 H62 L54 28 H30 Z" fill="#B9DAA5" stroke="#3E3A39" stroke-width="3" stroke-linejoin="round"/><use href="#shachi" class="float" x="30" y="16" width="12" height="12"/><use href="#shachi" class="float2" x="42" y="16" width="12" height="12" transform="translate(96 0) scale(-1 1)"/><rect x="38" y="62" width="8" height="10" fill="#3E3A39"/></svg>'
+  };
+
+  var DAYS=[
+    {d:"11/19",w:"週四",title:"抵達名古屋・共同聚餐",stay:"住 名古屋萬豪",art:"plane",items:[
+      {t:"12:00",tg:["air"],w:"桃園 T1 起飛"},
+      {t:"15:35",tg:["air"],w:"抵達中部國際機場 T1"},
+      {t:"16:30",tg:["rail"],w:"入境、領行李，搭名鐵到名古屋站",n:"中部國際機場站搭 μ-SKY 或特急 → 名鐵名古屋站"},
+      {t:"17:30",tg:["walk"],w:"抵達萬豪、辦理入住",n:"名鐵名古屋站步行到 JR 名古屋站上方",q:"Nagoya Marriott Associa Hotel"},
+      {t:"晚上",w:"與旅伴共同聚餐"},
+      {t:"聚餐後",w:"逛名古屋站周邊，或直接休息",n:"Échiré 艾許奶油在 JR 名古屋高島屋，已關門就改天順路買",q:"Échiré JR Nagoya Takashimaya"}
+    ],tips:[["y","熱田神宮方案一","如果聚餐時間較晚，可以趁聚餐前去參拜。19:00 前開飯就不建議。"]]},
+    {d:"11/20",w:"週五",title:"永保寺・四季櫻・香嵐溪賞楓",stay:"Klook 賞楓一日遊・住 名古屋萬豪",art:"maple",items:[
+      {t:"09:30前",tg:["bus"],w:"到指定集合地點"},
+      {t:"10:00",tg:["bus"],w:"出發"},
+      {t:"11:00",w:"虎溪山永保寺",n:"停留 1 小時。國家名勝池泉庭園，本堂前有 700 年銀杏",q:"虎渓山永保寺"},
+      {t:"13:15",w:"小原四季櫻",n:"停留 30 分鐘。櫻花與紅葉同框；官方公告四季櫻祭 11/21–12/6，花況出發前再確認",q:"小原 四季桜"},
+      {t:"15:00",tg:["must"],w:"香嵐溪：白天賞楓＋晚間點燈",n:"停留 120–210 分鐘，依當天路況調整，自由活動",q:"香嵐渓",m:1},
+      {t:"20:00",tg:["bus"],w:"返回名古屋"},
+      {t:"晚上",w:"自由晚餐、回飯店"}
+    ],tips:[["m","提醒","實際時間以 Klook 訂單為準，賞楓季可能塞車。這天不另外排行程。"]]},
+    {d:"11/21",w:"週六",title:"犬山城・惠那峽・馬籠宿・妻籠宿",stay:"Klook 歷史文化一日遊・住 名古屋萬豪",art:"juku",items:[
+      {t:"08:30",tg:["bus"],w:"集合：名古屋站太閤通口 Ministop 椿町店",n:"名古屋市中村區椿町 5-10，從萬豪步行即可",q:"ミニストップ 椿町店 名古屋"},
+      {t:"上午",w:"犬山城",n:"停留 1 小時、自助導覽。門票可能已含，或需現場付費",q:"犬山城"},
+      {t:"中午",w:"惠那峽展望臺",n:"停留 30 分鐘",q:"恵那峡"},
+      {t:"下午",tg:["must"],w:"馬籠宿",n:"停留 1 小時 30 分鐘，江戶時代宿場町",q:"馬籠宿",m:1},
+      {t:"下午",tg:["must"],w:"妻籠宿",n:"停留 1 小時",q:"妻籠宿",m:1},
+      {t:"18:20",tg:["bus"],w:"回到太閤通口 Ministop 椿町店下車"},
+      {t:"19:00",w:"榮商圈 Nagoya PARCO 逛日牌",n:"SNIDEL 等。20:00 關門，團晚回來就直接取消，有體力才去",q:"Nagoya PARCO"},
+      {t:"20:00後",w:"晚餐、居酒屋"}
+    ]},
+    {d:"11/22",w:"週日",title:"下呂溫泉・飛驒牛・名古屋購物",stay:"住 名古屋萬豪",art:"onsen",items:[
+      {t:"08:43",tg:["jr"],w:"JR 名古屋站 → 下呂",n:"特急飛驒號，10:15 抵達"},
+      {t:"10:15",tg:["walk"],w:"下呂溫泉街散步、拍照",q:"下呂温泉 温泉街"},
+      {t:"11:00",tg:["must","tbd"],w:"水明館日歸露天溫泉",n:"野天風呂＋展望大浴場，日歸受理 11:00–14:00，出發前向館方確認",q:"下呂温泉 水明館",m:1},
+      {t:"12:00",tg:["must","tbd"],w:"飛驒牛午餐：水明館北乃寮",n:"12:00–13:20。泡完直接用餐；三吃膳＋入浴方案參考價 ¥4,000 起，待確認",q:"下呂温泉 水明館"},
+      {t:"13:20",tg:["walk"],w:"散步、回車站"},
+      {t:"14:22",tg:["jr"],w:"下呂 → 名古屋",n:"特急飛驒號，16:09 抵達"},
+      {t:"16:30",w:"榮・矢場町購物",n:"Nagoya PARCO 的 SNIDEL 等日牌，有時間再去 ZARA",q:"Nagoya PARCO"},
+      {t:"晚上",w:"晚餐、回萬豪"}
+    ],tips:[["c","這天比較累","早上 8:43 搭車、晚上逛到 20:00。在水明館泡得舒服想多待，就改搭 15:32–17:05 的車回名古屋，晚上的購物時間縮短。"],["m","熱田神宮方案二","下呂回來後去參拜，但會壓縮購物時間。"],["y","列車時刻","依 2026 年 10 月公開班表，出發前再確認。"]]},
+    {d:"11/23",w:"週一",title:"名古屋城・本丸御殿・返臺",stay:"日本國定假日・16:40 起飛",art:"castle",items:[
+      {t:"09:15",w:"起床、整理行李"},
+      {t:"09:50",w:"退房，行李寄放萬豪"},
+      {t:"10:05",tg:["taxi"],w:"前往名古屋城",n:"約 30 分鐘"},
+      {t:"10:35",tg:["must"],w:"名古屋城外觀、本丸御殿",n:"10:35–11:55。本丸御殿可入內，天守閣目前不能進；成人門票 ¥1,000",q:"名古屋城",m:1},
+      {t:"12:00",tg:["taxi"],w:"返回萬豪、取行李"},
+      {t:"12:30",w:"簡單午餐"},
+      {t:"13:00",tg:["rail"],w:"前往中部國際機場",n:"約 13:00–14:00"},
+      {t:"14:00",w:"報到託運 → 4 樓伴手禮 → Sky Deck",n:"蝦仙貝之里在第一航廈 4 樓；都在安檢前，逛完再出境",q:"えびせんべいの里 セントレア"},
+      {t:"16:40",tg:["air"],w:"搭機返臺",n:"19:10 抵達桃園 T1"}
+    ],tips:[["c","控制時間","國定假日人多，本丸御殿排太久就縮短參觀，機場緩衝不能犧牲。"]]}
+  ];
+
+  var TODO=[
+    "確認 11/20 Klook 賞楓團的集合地點與時間，以及 11/21 犬山城門票是否已含",
+    "聯絡水明館確認 11/22 日歸露天溫泉是否開放、可否預約",
+    "預約 11/22 飛驒牛午餐，確認與泡湯時間能否銜接",
+    "確認並預訂 11/22 特急飛驒號往返車票",
+    "確認 11/19 共同聚餐的確切時間，決定熱田神宮能否安排",
+    "確認 11/23 機場報到時間與名鐵車次"
+  ];
+
+  var PLACES=[
+    ["TSUTAYA BOOKSTORE 則武新町","備選，第一天或其他空檔","maybe","備選","TSUTAYA BOOKSTORE 則武新町"],
+    ["Échiré 艾許奶油","名古屋站順路購買","go","順路","Échiré JR Nagoya Takashimaya"],
+    ["AOI CELESTIE COFFEE","不特地繞路","maybe","順路再去","AOI CELESTIE COFFEE Nagoya"],
+    ["清洲城","已有犬山城與名古屋城","no","不排","清洲城"],
+    ["蘇山莊、德川園","需要完整半天","no","不排","徳川園"],
+    ["新穗高纜車","距離下呂太遠","no","不排","新穂高ロープウェイ"]
+  ];
+
+  var GUIDE={
+  1:{intro:"三站各有不同的欣賞重點：永保寺看池、橋、佛堂與山岩如何構成一座庭園；小原看秋季櫻花與紅葉交織的特殊景觀；香嵐溪看數代人培育的山林，以及河谷在日夜之間的變化。",items:[
+    {t:"虎溪山永保寺",s:"在山水之間，欣賞日本禪寺庭園",b:
+     "<p>位於岐阜縣多治見市，歷史可追溯至 1313 年，與禪僧、造園名家夢窗疏石淵源深厚。夢窗也與京都天龍寺、西芳寺等名園有關；永保寺保留了他善用自然地形，把山岩、水流與寺院融為一體的造園特色。觀音堂與開山堂都是日本國寶，庭園是國家名勝。</p>"+
+     "<h5>欣賞重點：建築與山水的構圖</h5><p>以臥龍池為中心，池上的無際橋、岸邊的觀音堂和後方岩壁共同構成景觀。無際橋中央有小巧的屋亭，是庭園最醒目的特色；觀音堂可留意寬展的屋頂、微微上揚的屋簷，以及簷下深淺變化的陰影。</p>"+
+     "<h5>怎麼逛</h5><p>先在池畔看完整體，再沿開放步道慢慢移動，同一座橋與佛堂從不同角度看，前後層次都不一樣。秋天特別留意紅葉、木造建築與水面倒影如何互相襯托。</p>",
+     src:[["文化遺產線上","https://kunishitei.bunka.go.jp/bsys/maindetails/102/1044"],["永保寺官網","https://kokeizan.or.jp/pages/25/"]]},
+    {t:"小原四季櫻",s:"秋日山村中的櫻花與紅葉",b:
+     "<p>小原位於愛知縣豐田市北部山區。「四季櫻」雖然叫四季，其實主要在<b>春、秋兩季開花</b>。秋季花期與紅葉重疊時，淡色花朵和紅、橙色樹葉會交織在一起。</p>"+
+     "<p>依地方流傳的說法，約 1820 年醫師藤本玄碩從名古屋一帶取得櫻花苗木種在小原，之後逐漸推廣，今天已有約一萬株。</p>"+
+     "<h5>「小原四季櫻」是地區主題，不是單一景點</h5><p>賞花地點包括小原交流公園、和紙之鄉、川見四季櫻之鄉等。川見以山坡上約 1,200 株四季櫻與紅葉相映著稱，實際看到哪種景致，要看團停靠的會場。</p>"+
+     "<h5>怎麼看</h5><p>遠看整片山坡的色彩分布，近看枝頭花朵與秋葉的對比。</p>"+
+     "<div class=\"note-box\">官方公告 2026 年小原四季櫻祭為 <b>11/21–12/6</b>（Klook 頁面寫 11/16–12/1，以官方為準）。11/20 前往是祭典前一天，但花況和祭典日期是兩回事，接近出發時再確認開花程度。</div>",
+     src:[["豐田市","https://www.city.toyota.aichi.jp/shisei/jichiku/1008649/obara/1011191.html"],["豐田觀光：川見","https://www.tourismtoyota.jp/spots/detail/2266/"],["豐田觀光：四季櫻祭","https://www.tourismtoyota.jp/spots/detail/716/"]]},
+    {t:"香嵐溪",s:"由僧侶與地方居民共同培育的紅葉名所",b:
+     "<p>位於豐田市足助地區，以巴川與飯盛山為核心。沿河步行，可以從開闊的溪岸走進樹蔭，再往山寺方向探索。</p>"+
+     "<p>相傳 1634 年，香積寺第十一代住持三榮和尚在參道與寺院周邊種植楓樹與杉樹，寺方記載他每誦讀一卷《般若心經》便種下一棵樹。大正末期到昭和初期，當地青年團、婦女會也投入植樹，才形成今天的景觀。這是一片<b>由宗教、地方生活與數代人維護共同塑造的山林</b>。</p>"+
+     "<h5>三種視角</h5><table class=\"gt\"><tr><th>位置</th><th>欣賞重點</th></tr><tr><td>待月橋及河岸</td><td>橋梁、巴川與後方山坡一起看，掌握整體景觀</td></tr><tr><td>沿河步道、楓樹下</td><td>近看葉形與色彩差異，有陽光時看光線穿過葉片</td></tr><tr><td>往香積寺的參道</td><td>視線從河谷轉向山寺，感受石階、樹林與寺院相連</td></tr></table>"+
+     "<p>這裡有多種楓樹，變色節奏不同，綠、黃、橙、紅交錯的層次也很好看，不一定只有整片鮮紅才美。</p>"+
+     "<h5>日夜對照</h5><p>白天看葉片細節、溪水與遠近層次；點燈後看燈光勾勒的樹冠與水面倒影。<b>先散步看白天景色，再挑一兩個喜歡的位置於點燈後重訪</b>。點燈安排以當年度公告和團的停留時間為準。</p>",
+     src:[["香積寺","https://kojakuji.com/about/"],["足助觀光協會","https://asuke.info/korankei/"]]}
+  ]},
+  2:{intro:"今天的主線：從戰國武將爭奪天下，到江戶時代的交通與庶民生活，再到近代日本的工業化。犬山城、惠那峽、馬籠宿、妻籠宿正好從不同角度呈現這段歷史。",items:[
+    {t:"先認識時代背景",s:"今天走進日本歷史的哪一段？",b:
+     "<table class=\"gt\"><tr><th>時代</th><th>入門理解</th><th>本日景點</th></tr>"+
+     "<tr><td>戰國<br><small>15 世紀後半–16 世紀末</small></td><td>中央權威衰弱，武將競逐領地。信長、秀吉、家康先後推進統一。</td><td>犬山城</td></tr>"+
+     "<tr><td>江戶<br><small>1603–1867</small></td><td>德川幕府統制各地大名，穩定秩序讓城市、道路、商業與旅行文化發展。</td><td>馬籠宿、妻籠宿</td></tr>"+
+     "<tr><td>幕末至明治維新<br><small>19 世紀中後期</small></td><td>外國壓力使幕府動搖，1867 年大政奉還，制度劇烈改變。</td><td>島崎藤村《夜明前》</td></tr>"+
+     "<tr><td>明治以後<br><small>1868–</small></td><td>鐵路、工廠、電力改變生活，宿場失去功能。</td><td>惠那峽大井水壩、妻籠保存</td></tr></table>"+
+     "<h5>幾個常見名詞</h5><dl class=\"gl\"><dt>天皇</dt><dd>皇室與朝廷的核心；幕府時代仍存在，但政治軍事實權在武家。</dd><dt>將軍／幕府</dt><dd>將軍是武家政權的領袖，幕府是統治機構。</dd><dt>大名</dt><dd>擁有領地與家臣的武家領主。</dd><dt>城下町</dt><dd>圍繞城堡形成的城鎮。</dd><dt>宿場町</dt><dd>沿主要道路形成，提供住宿、人馬轉運的聚落。</dd></dl>",
+     src:[["國立國會圖書館兒童版","https://www.kodomo.go.jp/yareki/theme/theme_05.html"]]},
+    {t:"犬山城",s:"從一座城，看懂戰國武將如何爭奪天下",b:
+     "<p>位於木曾川南岸丘陵。傳統說法是約 1537 年由織田信長的叔父織田信康築城，但<b>築城年代和現存天守的年代要分開看</b>：木材年輪研究認為現存天守約建於 1590 年。</p>"+
+     "<h5>三位關鍵人物</h5><ul><li><b>織田信長</b>：大幅推進統一，1582 年於本能寺之變身亡。</li><li><b>豐臣秀吉</b>：在信長死後的權力競逐中崛起，完成全國統一。</li><li><b>德川家康</b>：秀吉死後取得優勢，1603 年建立江戶幕府。</li></ul>"+
+     "<h5>犬山城與小牧・長久手之戰</h5><p>1584 年，秀吉與織田信雄、德川家康聯軍對立。犬山城被秀吉方的池田恒興攻取，秀吉也曾入城。後來先後成為天下人的秀吉與家康，曾在這裡正面交鋒。1617 年成瀨正成獲授犬山城，成瀨家長期擔任城主，反映日本從戰國轉入德川的穩定秩序。</p>"+
+     "<h5>現場觀看重點</h5><ul><li><b>天守的木造空間</b>：樓梯、梁柱與樓層尺度。</li><li><b>頂層視野</b>：把木曾川與周邊地形當成一張軍事地圖。</li><li><b>城與城下町</b>：領主統治還需要家臣、商人與工匠支撐。</li></ul>"+
+     "<h5>影視連結</h5><p>NHK 大河劇《怎麼辦家康》第 32 集「小牧長久手的激戰」直接對應這段戰事。《幕府將軍》以 1600 年為背景，吉井虎永的原型是家康，可以建立對武家政治的感受，但情節經過改編。</p>",
+     src:[["犬山市","https://www.city.inuyama.aichi.jp/kurashi/bunka/1001052/1003738/1003739.html"],["國寶犬山城","https://inuyama-castle.jp/about/"]]},
+    {t:"惠那峽",s:"山水風景背後，是近代日本的電力建設",b:
+     "<p>惠那峽位於木曾川流域，今天的景觀與 <b>1924 年完成的大井水壩</b>密切相關。大井水壩與發電所是日本早期正式水壩式發電的重要工程，與「電力王」福澤桃介有關。明治走向大正，城市與工業需要更多電力，山區河川成了經濟發展的資源。</p>"+
+     "<p>戰國時代人們重視河流的防禦與渡河價值；到了近代，同一條河流變成發電資源。在展望臺可以觀察山壁、河道與蓄水水面的關係，想想水壩如何改變河川，電力又如何把山區與城市生活連在一起。</p>"+
+     "<p>歷史上可以倒過來理解今天的順序：鐵路與工業化興起後，馬籠、妻籠這類依靠舊道路維生的聚落，便必須面對新的處境。</p>",
+     src:[["惠那市觀光協會","https://www.kankou-ena.jp/areaguide/enakyo.php"],["土木學會選獎土木遺產","https://committees.jsce.or.jp/heritage/node/1258"]]},
+    {t:"馬籠宿",s:"沿著山坡，認識江戶時代的人如何旅行",b:
+     "<p>位於岐阜縣中津川市，以沿坡道延伸的街景著稱。中山道是江戶五街道之一，連接江戶與京都，沿途 69 個宿場；馬籠是從江戶起算的第 43 宿，妻籠是第 42 宿。</p>"+
+     "<h5>為什麼有這麼多人在路上移動？</h5><p>「參勤交代」要求大名往返領地與江戶、交替居住，既是向將軍表示臣服，也讓幕府統制各地；大名隊伍的移動帶動沿途交通和住宿需求。這項制度在 1635 年的《武家諸法度》中正式明文化。</p>"+
+     "<h5>本陣是什麼？</h5><p>宿場中供大名、公家與幕府官員住宿的設施，常由地方有地位的家族經營。馬籠的島崎家曾兼任本陣、庄屋與問屋。</p>"+
+     "<h5>文學連結：島崎藤村《夜明前》</h5><p>藤村出生於馬籠，藤村記念館就在他生家本陣的舊址。《夜明前》以父親為原型，描寫幕末到明治維新時木曾地方社會的變化。可以帶著一個問題逛：<b>明治維新走向現代化時，生活在山村的人能順利找到自己的位置嗎？</b></p>"+
+     "<h5>現場觀看重點</h5><ul><li>坡道與道路尺度：想像步行、挑行李、運貨的負擔。</li><li>街屋與主街：商業與生活如何沿道路集中。</li><li>本陣舊址與藤村記念館。</li></ul>",
+     src:[["馬籠觀光協會","https://www.kiso-magome.com/about"],["國土交通省","https://www.ktr.mlit.go.jp/yokohama/tokaido/02_tokaido/04_qa/index1/a0107.htm"],["中津川觀光協會","https://nakatsugawa.town/spot/%E9%A6%AC%E7%B1%A0%E5%AE%BF/"]]},
+    {t:"妻籠宿",s:"江戶交通的遺產，也是居民的保存選擇",b:
+     "<p>位於長野縣南木曾町。明治以後鐵路與新道路改變交通路線，妻籠失去宿場功能，舊街區反而保留較多早期樣貌。1960 年代居民開始推動保存，1968 年保存事業與「妻籠を愛する會」成立，成為日本歷史街區保存的重要先例。</p>"+
+     "<h5>居民三原則：不賣、不租、不拆</h5><p>「売らない・貸さない・こわさない」。核心是讓當地人持續生活、共同守護，把保存範圍從單棟古建築擴大到街道、聚落與周邊環境。</p>"+
+     "<h5>本陣與脇本陣</h5><p>妻籠本陣是島崎藤村母親的娘家，後來兄長也成為當主。<b>現今本陣是 1995 年依江戶後期圖面復原的建築</b>，參觀時要區分原物與重建。可以留意主人與客人的空間安排，以及不同房間的規模差異。</p>"+
+     "<h5>現場觀看重點</h5><ul><li>整條街的連續性：屋頂、簷下與街道的整體感。</li><li>生活與觀光共存：這裡仍是居民的生活場所。</li><li>保存與復原的差異。</li></ul>",
+     src:[["妻籠宿官網","https://tsumago.jp/learn/"],["南木曾町觀光協會","https://nagiso.jp/topics/tsumago-juku-honjin/"]]}
+  ],sum:[["犬山城","戰國武將如何利用城堡、河川與地形爭奪權力？"],["惠那峽","近代日本如何透過電力與工程重新利用山川？"],["馬籠宿","幕府建立秩序後，人員、貨物與命令如何跨越山區流動？"],["妻籠宿","舊交通路線失去作用後，地方如何重新確認自身價值？"]],sumTitle:"帶著這四個問題旅行"},
+  3:{intro:"理解下呂可以從三個層次切入：溫泉與療癒的信仰、文人傳播的名湯聲望，以及今天旅館與觀光形成的休閒文化。",items:[
+    {t:"下呂溫泉街",s:"白鷺、藥師如來與名湯的由來",b:
+     "<p>下呂沿飛驒川展開，有約千年的溫泉歷史。最有代表性的傳說是：原有湯泉停止湧出後，一隻白鷺來到飛驒川畔，讓村民發現新泉源，人們相信牠是藥師如來的化身。藥師如來與醫藥、療癒有關，故事把湧泉、身體康復與信仰連在一起。逛街時看到「白鷺」「藥師」等名稱，就是在呼應這段傳說。</p>"+
+     "<table class=\"gt\"><tr><th>層次</th><th>下呂的故事</th></tr><tr><td>信仰與傳說</td><td>藥師如來化身白鷺，指引人們找到溫泉</td></tr><tr><td>室町時代</td><td>禪僧萬里集九記述、讚美下呂</td></tr><tr><td>江戶時代</td><td>儒學者林羅山將下呂與有馬、草津並列為名泉</td></tr><tr><td>今日</td><td>旅館、浴場、足湯與料理構成完整的溫泉旅行</td></tr></table>"+
+     "<h5>「日本三名泉」是什麼意思？</h5><p>下呂、有馬、草津的並列來自文學與歷史評價，不是現代評比名次，也不表示泉質相同。林羅山也與這趟的德川歷史相連：他經藤原惺窩引介，於 1605 年見到德川家康。</p>"+
+     "<h5>選看：醫王靈山溫泉寺</h5><p>1671 年建立，供奉藥師如來，173 階石階上可以眺望溫泉街。上午時間有限，不必為了登階壓縮泡湯。</p>"+
+     "<h5>散步時留意</h5><ul><li>飛驒川兩岸的旅館、橋梁與山地。</li><li>白鷺相關的名稱與意象。</li><li>足湯與浴場如何進入公共空間。</li></ul>",
+     src:[["下呂溫泉觀光協會","https://www.gero-spa.com/spot/detail_1.html"],["溫泉寺","https://www.gero-spa.com/spot/detail_13.html"]]},
+    {t:"水明館",s:"體驗日本溫泉旅館的款待文化",b:
+     "<p>旅館把浴場、餐飲、庭園與休息空間結合，泡湯成為一段完整的休閒時間，日歸入浴也能體驗其中一部分。</p>"+
+     "<p>官方公布的日歸入浴包含<b>野天風呂與展望大浴場，受理時間 11:00–14:00</b>。11:00–12:00 可以完成一次入浴，但想慢慢看館內、整理頭髮，一小時會偏緊。當日可用浴場與清掃時間仍要向館方確認。</p>"+
+     "<h5>延伸：《羅馬浴場》</h5><p>漫畫與電影《テルマエ・ロマエ》以古羅馬浴場遇上日本泡湯文化製造笑點，和下呂歷史沒有直接關係，但可以輕鬆看看日本人對洗浴空間、用品和泡湯享受的講究。</p>",
+     src:[["水明館官網","https://www.suimeikan.co.jp/hotspring/"]]},
+    {t:"飛驒牛",s:"認識現代日本的地方食材品牌",b:
+     "<p>「飛驒牛」有明確認證條件，包括黑毛和種、在岐阜縣有規定的肥育經歷，以及肉質等級要求。<b>肉質 3、4、5 等級都可以是飛驒牛，不是只有 A5 才算</b>。飛驒牛品牌協議會把 2002 年全國和牛能力共進會的佳績，視為知名度提升的重要節點。</p>"+
+     "<h5>午餐怎麼選</h5><table class=\"gt\"><tr><th>餐廳</th><th>適合</th><th>搭配行程</th></tr>"+
+     "<tr><td><b>水明館「北乃寮」</b><br><small>首選</small></td><td>日式飛驒牛午餐，悠閒泡湯</td><td>泡完直接用餐，不用移動</td></tr>"+
+     "<tr><td>飛驒牛茶寮「神月」</td><td>正式牛排午餐</td><td>建議搭計程車，訂位時說明搭車時間</td></tr>"+
+     "<tr><td>下呂松葉</td><td>洋食、炸牛排</td><td>備選，需另留移動時間</td></tr></table>"+
+     "<p>北乃寮官方曾列飛驒牛三吃膳（ひつまぶし）＋入浴方案，每人 ¥4,000 起，可作預算參考；11 月是否供應、最新價格仍待確認。</p>"+
+     "<p>神月（旅館水鳳園經營）午餐：50g A4 肩里肌 ¥3,960、70g ¥5,500、100g ¥7,700（含稅，附前菜、湯、沙拉、主食、甜點）。50g 偏少量品嚐，專程吃牛排建議 100g。官網的平日特餐寫的是「黑毛和牛」，不是飛驒牛套餐。下呂松葉 1978 年創業，標示使用 A5 飛驒牛。</p>",
+     src:[["水明館日歸方案","https://www.suimeikan.co.jp/oneday/?c=7"],["神月","https://www.s-kangetsu.com/"],["下呂松葉","https://www.geromatsuba.com/"],["飛驒牛品牌協議會","https://www.hidagyu-gifu.com/hidagyu.php"]]}
+  ]},
+  4:{intro:"犬山城讓我們看見戰國時代的權力爭奪，名古屋城則說明德川家取得優勢後，如何建立長期統治，很適合當作這趟歷史旅行的收尾。",items:[
+    {t:"名古屋城",s:"德川家如何把天下變成長久的統治",b:
+     "<p>1610 年奉德川家康之命興建，作為第九子德川義直的居城。天守 1612 年完成，本丸御殿 1615 年完成；同年大坂之陣結束，豐臣家滅亡。名古屋城誕生於<b>戰國走向統一、德川統治逐步鞏固的過渡期</b>。</p>"+
+     "<table class=\"gt\"><tr><th>年份</th><th>事件</th></tr><tr><td>1584</td><td>小牧・長久手之戰，犬山城是據點</td></tr><tr><td>1603</td><td>家康出任將軍，建立江戶幕府</td></tr><tr><td>1610</td><td>名古屋城開始興建</td></tr><tr><td>1615</td><td>本丸御殿完成；大坂之陣結束</td></tr></table>"+
+     "<h5>德川御三家</h5><p>家康安排兒子建立尾張、紀伊、水戶三個分家。名古屋城是尾張德川家的居城，尾張被視為御三家之首。</p>"+
+     "<h5>天下普請</h5><p>加藤清正、福島正則等大名被動員出錢出力築城，也藉此表達服從。看石垣時，可以想像背後的採石、運輸與施工組織，<b>城的規模本身就是政權動員能力的展示</b>。</p>"+
+     "<h5>金鯱</h5><p>1612 年天守完成時就安置在屋頂，用來彰顯家康的支配力與尾張德川家的權威。</p>",
+     src:[["Visit Nagoya","https://www.nagoya-info.jp/zhtw/spot/detail/1/"],["名古屋城官網","https://www.nagoyajo.city.nagoya.jp/guide/nagoyajo/"]]},
+    {t:"本丸御殿",s:"從房間、繪畫與裝飾，看見身分秩序",b:
+     "<p><b>天守</b>是城的核心，具軍事與權威象徵功能；<b>御殿</b>是領主生活、處理政務、接見與舉行儀式的空間。本丸御殿原是義直的住所與政廳，1620 年後轉為將軍往返京都時的宿館。</p>"+
+     "<p>參觀時留意<b>不同房間的裝飾並不相同</b>：天花板、欄間雕刻、金屬飾件與障壁畫，會隨用途與接待對象的地位改變。</p>"+
+     "<table class=\"gt\"><tr><th>重點</th><th>欣賞方式</th></tr><tr><td>玄關《竹林豹虎圖》</td><td>金色背景、竹林與虎豹營造初入御殿的氣勢</td></tr><tr><td>表書院</td><td>把房間當作正式接見的舞臺，看主客關係</td></tr><tr><td>對面所</td><td>藩主與親近者、家臣會面及宴席，畫題不同</td></tr><tr><td>上洛殿</td><td>為迎接將軍增建，最華麗，看彩色欄間雕刻與天花板</td></tr></table>"+
+     "<h5>這是江戶時代留下的嗎？</h5><ul><li>1945 年：天守與本丸御殿於戰火中燒毀。</li><li>1959 年：天守以鋼骨鋼筋混凝土重建。</li><li>2018 年：依古文獻、戰前照片與實測圖復原的本丸御殿全面完成。</li></ul><p>部分原有障壁畫因事先拆下而逃過戰火，由館方保存、分期公開。</p>"+
+     "<h5>和犬山城一起看</h5><p>犬山城看保存至今的木造天守與河川地形；名古屋城看德川政權的規模、御殿文化，以及戰後如何重建歷史。</p>"+
+     "<div class=\"note-box\">天守目前閉館，本丸御殿可參觀，成人 ¥1,000。建議順序：本丸御殿 → 天守與金鯱外觀 → 沿途石垣。御殿排隊久就縮短其他區域。</div>",
+     src:[["本丸御殿","https://www.nagoyajo.city.nagoya.jp/guide/honmarugoten/"],["御殿復原","https://www.nagoyajo.city.nagoya.jp/learn/construction/honmarugoten/"]]},
+    {t:"中部國際機場",s:"旅行最後一站",b:
+     "<p>又稱 Centrair，2005 年 2 月 17 日開港，從規劃起就重視餐飲、商業與參觀體驗。以下都在<b>安檢前的公共區域</b>，先逛再進管制區。</p>"+
+     "<table class=\"gt\"><tr><th>地點</th><th>亮點</th><th>預留</th></tr><tr><td>第一航廈 4 樓商店街</td><td>買伴手禮、用餐</td><td>30–60 分</td></tr><tr><td>Sky Deck 展望臺</td><td>戶外看停機坪與起降，免費</td><td>15–30 分</td></tr><tr><td>FLIGHT OF DREAMS</td><td>波音 787 初號機 ZA001</td><td>45–60 分＋移動</td></tr><tr><td>風之湯</td><td>展望浴場</td><td>另留充裕時間</td></tr></table>"+
+     "<p>4 樓「ちょうちん横丁」以舊街道氛圍呈現商店街，可以和前幾天看過的真正宿場町比較。FLIGHT OF DREAMS 是獨立區域，從機場車站往第 2 航廈方向步行約 5 分鐘，時間不夠就留在第一航廈。</p>"+
+     "<div class=\"note-box\">建議動線：報到託運 → 4 樓買伴手禮 → Sky Deck 看飛機 → 安檢出境。</div>",
+     src:[["Centrair 蝦仙貝之里","https://www.centrair.jp/shop-dine/shop/ebisenbei.html"],["FLIGHT OF DREAMS","https://www.centrair.jp/flight-of-dreams/"]]}
+  ]}
+  };
+
+  var SOUV=[
+    {p:"名古屋站中央通道",w:"Piyorin village 小物、燒菓子",q:"ぴよりん 名古屋駅"},
+    {p:"JR 名古屋高島屋",w:"坂角黃金罐，順便看其他禮盒",q:"坂角総本舗 ジェイアール名古屋タカシマヤ"},
+    {p:"車站西側 ESCA 地下街",w:"青蛙饅頭、兩口屋是清和菓子",q:"エスカ 名古屋"},
+    {p:"逛榮時",w:"想嘗鮮再找 B.sablé，不必單獨跑一趟",q:""},
+    {p:"回程機場 4 樓",w:"蝦仙貝之里，補買分享零食",q:"えびせんべいの里 セントレア"}
+  ];
+
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+  // overview
+  var ov=document.getElementById("overview");
+  DAYS.forEach(function(D,i){
+    var b=document.createElement("button");b.className="ov";b.type="button";
+    b.innerHTML='<span class="d">'+D.d+'<small>'+D.w+'</small></span><span class="t">'+esc(D.title)+'<span class="n">'+esc(D.stay)+'</span></span>';
+    b.addEventListener("click",function(){select(i,true);document.getElementById("plan").scrollIntoView()});
+    ov.appendChild(b);
+  });
+
+  // day switcher
+  var daysEl=document.getElementById("days"),dayEl=document.getElementById("day"),btns=[];
+  DAYS.forEach(function(D,i){
+    var b=document.createElement("button");b.className="day-btn";b.type="button";b.setAttribute("role","tab");b.id="tab"+i;
+    b.innerHTML='<span class="pin"></span><span class="dt">'+D.d+'</span><span class="wk">'+D.w+'</span>';
+    b.addEventListener("click",function(){select(i,true)});
+    daysEl.appendChild(b);btns.push(b);
+  });
+  daysEl.addEventListener("keydown",function(e){
+    var i=btns.indexOf(document.activeElement);if(i<0)return;
+    if(e.key==="ArrowRight"){select(Math.min(i+1,4),true);btns[Math.min(i+1,4)].focus()}
+    if(e.key==="ArrowLeft"){select(Math.max(i-1,0),true);btns[Math.max(i-1,0)].focus()}
+  });
+
+  function render(i){
+    var D=DAYS[i],h='<div class="card day-head" style="background:var(--yellow-l)"><div class="art">'+ART[D.art]+'</div><div><div class="no">Day '+(i+1)+'・'+D.d+' '+D.w+'</div><h3>'+esc(D.title)+'</h3><div class="st">'+esc(D.stay)+'</div></div></div><ol class="tl">';
+    D.items.forEach(function(it){
+      var tags=(it.tg||[]).map(function(k){return '<span class="tag '+TAG[k][1]+'">'+TAG[k][0]+'</span>'}).join("");
+      var w=it.q?'<a href="'+M(it.q)+'" target="_blank" rel="noopener">'+esc(it.w)+'</a>':esc(it.w);
+      h+='<li'+(it.m?' class="must"':'')+'><span class="tm">'+esc(it.t)+'</span><span class="nd"></span><div class="body"><div class="what">'+(tags?'<span class="tags">'+tags+'</span>':'')+w+'</div>'+(it.n?'<div class="note">'+esc(it.n)+'</div>':'')+'</div></li>';
+    });
+    h+='</ol>';
+    if(D.tips){h+='<div class="tips">';D.tips.forEach(function(t){h+='<div class="tip '+t[0]+'"><b>'+esc(t[1])+'</b>'+esc(t[2])+'</div>'});h+='</div>'}
+    var G=GUIDE[i];
+    if(G){
+      h+='<div class="guide"><h4 class="guide-head"><span class="dot" style="width:12px;height:12px;border-radius:50%;border:3px solid var(--ink);background:var(--mizu)"></span>行前景點導讀</h4><p class="guide-intro">'+G.intro+'</p>';
+      G.items.forEach(function(it){
+        var b=it.b.replace(/<table/g,'<div class="tbl"><table').replace(/<\/table>/g,'</table></div>');
+        h+='<details class="gd"><summary><span class="gt-title">'+esc(it.t)+'</span><span class="gt-sub">'+esc(it.s)+'</span></summary><div class="gb">'+b+(it.src?'<div class="src">資料來源：'+it.src.map(function(x){return '<a href="'+x[1]+'" target="_blank" rel="noopener">'+esc(x[0])+'</a>'}).join("")+'</div>':'')+'</div></details>';
+      });
+      if(G.sum){h+='<h4 class="guide-head" style="font-size:16px;margin-top:16px">'+esc(G.sumTitle)+'</h4><div class="sum">'+G.sum.map(function(x){return '<div><b>'+esc(x[0])+'</b><span>'+esc(x[1])+'</span></div>'}).join("")+'</div>'}
+      h+='</div>';
+    }
+    dayEl.innerHTML=h;
+  }
+  function select(i,animate){
+    btns.forEach(function(b,j){b.setAttribute("aria-selected",j===i?"true":"false");b.tabIndex=j===i?0:-1});
+    dayEl.setAttribute("aria-labelledby","tab"+i);
+    render(i);
+    if(animate){dayEl.classList.remove("bounce");void dayEl.offsetWidth;dayEl.classList.add("bounce")}
+    try{localStorage.setItem("ngo-day",i)}catch(e){}
+  }
+  // default day: today during trip, else saved, else day 1
+  var start=0,now=new Date(),jst=new Date(now.getTime()+9*3600e3),md=(jst.getUTCMonth()+1)+"/"+jst.getUTCDate();
+  var tIdx=DAYS.findIndex(function(D){return D.d===md});
+  if(tIdx>=0&&jst.getUTCFullYear()===2026)start=tIdx;else{try{var s=parseInt(localStorage.getItem("ngo-day"),10);if(s>=0&&s<5)start=s}catch(e){}}
+  select(start,false);
+
+  // countdown
+  var target=Date.UTC(2026,10,19,6,35),end=Date.UTC(2026,10,23,7,40);
+  function tick(){
+    var n=Date.now(),diff=target-n;
+    if(diff>0){
+      document.getElementById("cd-d").textContent=Math.floor(diff/864e5);
+      document.getElementById("cd-h").textContent=Math.floor(diff%864e5/36e5);
+      document.getElementById("cd-m").textContent=Math.floor(diff%36e5/6e4);
+    }else{
+      document.getElementById("count").hidden=true;
+      document.getElementById("count-msg").textContent=n<end?"旅途中，玩得開心！":"旅程已結束，歡迎回家";
+    }
+  }
+  tick();setInterval(tick,30000);
+
+  // todo
+  var saved={};try{saved=JSON.parse(localStorage.getItem("ngo-todo")||"{}")}catch(e){saved={}}
+  var todo=document.getElementById("todo");
+  TODO.forEach(function(t,i){
+    var li=document.createElement("li");
+    li.innerHTML='<label for="todo'+i+'"><input type="checkbox" id="todo'+i+'"'+(saved[i]?' checked':'')+'><span>'+esc(t)+'</span></label>';
+    todo.appendChild(li);
+  });
+  function prog(){
+    var c=todo.querySelectorAll("input:checked").length;
+    document.getElementById("prog-txt").textContent=c+"/"+TODO.length+" 完成";
+    document.getElementById("prog-bar").style.width=(c/TODO.length*100)+"%";
+  }
+  todo.addEventListener("change",function(e){
+    var i=parseInt(e.target.id.replace("todo",""),10);saved[i]=e.target.checked;
+    try{localStorage.setItem("ngo-todo",JSON.stringify(saved))}catch(err){}
+    prog();
+  });
+  prog();
+
+  // places
+  var pl=document.getElementById("places");
+  PLACES.forEach(function(p){
+    var d=document.createElement("div");d.className="place";
+    d.innerHTML='<div class="nm">'+(p[4]?'<a href="'+M(p[4])+'" target="_blank" rel="noopener">'+esc(p[0])+'</a>':esc(p[0]))+'<span class="why">'+esc(p[1])+'</span></div><span class="chip '+p[2]+'">'+p[3]+'</span>';
+    pl.appendChild(d);
+  });
+
+  // souvenirs
+  var sv=document.getElementById("souv"),bg=["var(--coral-l)","var(--yellow-l)","var(--mizu-l)","var(--take-l)","var(--coral-l)"];
+  SOUV.forEach(function(x,i){
+    var li=document.createElement("li");
+    li.innerHTML='<span class="ic" style="background:'+bg[i]+'">'+(i+1)+'</span><div><div class="pl">'+(x.q?'<a href="'+M(x.q)+'" target="_blank" rel="noopener">'+esc(x.p)+'</a>':esc(x.p))+'</div><div class="wh">'+esc(x.w)+'</div></div>';
+    sv.appendChild(li);
+  });
+
+  // nav highlight via IntersectionObserver
+  var links={};document.querySelectorAll(".nav a").forEach(function(a){links[a.dataset.sec]=a});
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){if(e.isIntersecting){Object.keys(links).forEach(function(k){links[k].classList.toggle("on",k===e.target.id)})}});
+    },{rootMargin:"-45% 0px -50% 0px"});
+    ["home","flight","plan","gift","prep"].forEach(function(id){io.observe(document.getElementById(id))});
+  }
+  links.home.classList.add("on");
+})();
+</script>
+
+</body></html>
